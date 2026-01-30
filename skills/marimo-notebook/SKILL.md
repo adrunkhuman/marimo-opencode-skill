@@ -63,8 +63,8 @@ print("Processing row", i)
 # GOOD - displays properly in all modes
 mo.md(f"**Training complete.** Accuracy: {accuracy:.2%}")
 mo.callout(f"Processing {i} of {total}", kind="info")
-# Or just return the value - marimo displays it nicely
-return f"Processed {i} rows"
+# Or use bare expression - marimo displays it
+f"Processed {i} rows"
 
 # GOOD - for metrics/statistics
 mo.stat(value=f"{accuracy:.2%}", label="Accuracy", caption="+5% from baseline")
@@ -113,17 +113,17 @@ def model2_data():
 **Condition**: Assigning a variable in a cell  
 **Behavior**: Variable is automatically global and available to all other cells  
 **Local scope**: Use `_prefix` (e.g., `_i`, `_temp`) for cell-local variables that shouldn't be shared  
-**Violation**: Trying to "export" variables via return; confusion about scope
+**Display**: Use bare expressions (not return) for cell output - place the value/expression as the last line
 
 **Example:**
 ```python
-# GOOD: df is automatically global
+# GOOD: df is automatically global, bare expression for display
 def load_data():
     df = pd.read_csv("data.csv")  # df is GLOBAL
-    return df.head()  # Return affects display only
+    df.head()  # Bare expression as last line = DISPLAYED
 
 def analyze():  # No parameters!
-    return df.describe()  # df is directly available
+    df.describe()  # Bare expression as last line = DISPLAYED
 
 # Use _prefix for locals
 def process():
@@ -131,7 +131,7 @@ def process():
     for _i in range(10):
         _tmp.append(_i)
     result = sum(_tmp)  # result is global
-    return result
+    result  # Bare expression = DISPLAYED (not return)
 ```
 
 ---
@@ -328,10 +328,11 @@ def create_df():
 
 ## Validation checklist
 
+- [ ] Use bare expressions for cell output (not return statements)
 - [ ] Variables referenced by direct name (no manual parameters)
 - [ ] UI elements assigned to globals (no _ prefix)
 - [ ] .value used on UI elements in DIFFERENT cells (not same cell as definition)
-- [ ] No print() statements (use mo.md/mo.stat/return)
+- [ ] No print() statements (use mo.md/mo.stat/bare expressions)
 - [ ] No mutation across cells (mutate where defined)
 - [ ] Cell-local temps use _ prefix (not to dodge name conflicts)
 - [ ] mo.stop for conditional halts
@@ -342,7 +343,7 @@ def create_df():
 | Jupyter/Naive Python | Marimo Interactive |
 |---------------------|-------------------|
 | `def analyze(df):` with cell params | `def analyze():` direct reference |
-| `return df` to "export" variables | Variables auto-global, return for display |
+| `return df` to "export" variables | Variables auto-global; bare expression for display |
 | `_ =` throwaway in Jupyter | `_tmp`, `_i` locals or meaningful names |
 | `print()` for output | `mo.md()`, `mo.stat()`, or return objects |
 | Read `.value` in same cell as UI def | Define UI in one cell, read `.value` in another |
@@ -360,7 +361,7 @@ def setup():
     """Variables here are automatically global"""
     df = load_data()
     _secret = "local only"  # _prefix = cell-local
-    return df.describe()  # Return = display
+    df.describe()  # Bare expression = display
 
 @app.cell
 def controls():
