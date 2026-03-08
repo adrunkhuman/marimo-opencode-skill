@@ -2,11 +2,11 @@
 
 Prevent AI agents from breaking marimo notebooks with Python/Jupyter idioms.
 
-## Guardrails, Not a Reference Manual
+## Guardrails with Practical Coverage
 
-This skill is designed specifically to keep agents on track when building **interactive notebooks** (the standard use case).
+This skill is designed to keep agents on track when building **interactive notebooks** (the standard use case).
 
-It focuses on preventing DAG errors and broken UI reactivity. It does **not** cover the entire Marimo API, nor does it cover advanced programmatic use cases like `Cell.run()`.
+It focuses on preventing DAG errors and broken UI reactivity while also covering the parts of marimo agents commonly get wrong in practice: UI patterns, SQL, state management, validation, deployment, and export. It still does **not** aim to document the entire Marimo API, and it does **not** cover advanced programmatic use cases like `Cell.run()`.
 
 ## Why?
 
@@ -30,7 +30,7 @@ The skill actively prompts the agent to follow these rules:
 | **Flow Control** | **`mo.stop()`, not `raise`** | Use `mo.stop()` to conditionally halt execution without crashing the app UI. |
 | **Reactivity** | **Split Definition & Read** | If you define `slider = mo.ui.slider()`, you **cannot** read `slider.value` in the same cell. |
 | **Locals** | **Use `_` prefix** | `_var` stays local to the cell. Anything else becomes a global variable in the DAG. |
-| **Callbacks** | **`value`, not `change`** | Marimo callbacks receive the raw value (int/str), not a dictionary diff like Jupyter. |
+| **Callbacks** | **Prefer reactivity over `on_change`** | Most notebooks should read `.value` in downstream cells; if you do use callbacks, marimo passes the raw value (int/str), not a Jupyter-style change dict. |
 | **SQL** | **Direct DataFrame** | `mo.sql()` returns a DataFrame directly. Do not try to access `.value`. |
 | **Forms** | **Check for `None`** | `form.value` is `None` until submitted. Guard against this with `mo.stop()`. |
 | **Mutation** | **Mutate Locally** | Do not mutate a global variable (like a DataFrame) in a different cell than where it was defined. |
